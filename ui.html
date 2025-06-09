@@ -17,18 +17,20 @@ document.getElementById('cancel').onclick = () => {
 }
 
 document.getElementById('getData').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'get-json-data' } }, '*')
+  parent.postMessage({ pluginMessage: { type: 'check-component' } }, '*')
 }
 
 onmessage = (event) => {
   const msg = event.data.pluginMessage;
   // console.log("onmessage event", msg);
   if (msg.type === 'UPDATE_JSON') {
-    document.getElementById('json-output').innerText = msg.data;
+    document.getElementById('json-output').innerHTML = msg.data;
+  } if (msg.type === 'APPEND_JSON') {
+    document.getElementById('json-output').appendChild = "msg.data";
   } else if (msg.type === 'NOTIFY') {
     alert(msg.message);
   } else if (msg.type === 'OPEN_URL') {
-    window.open(msg.url, '_blank');
+    window.open(msg.data, '_blank');
   }
 };
 
