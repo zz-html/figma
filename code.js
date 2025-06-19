@@ -37,9 +37,30 @@ function checkIfComponent(node) {
     }
 }
 function checkComponentDoc(node) {
-    if (node.type === 'COMPONENT' || node.type === "INSTANCE") {
+    console.log("checkComponentDoc", node.name);
+    if (node.type === 'COMPONENT' || node.type === "INSTANCE" || node.name == "pagination" || node.name == "table" || node.name == "form") {
         // const instance = node as InstanceNode
-        return `<div>开发文档:<a href="https://element.eleme.cn/#/zh-CN/component/button" target="_blank">Element</a>，<a href="http://10.51.134.51:30808" target="_blank">自定义</a></div>`;
+        if (node.name == "颜色规范") {
+            return `<div>开发文档:<a href="https://element-plus.org/zh-CN/component/color.html" target="_blank">Element</a>，<a href="http://10.51.134.51:30808/docs-components/css-color.html" target="_blank">颜色规范</a></div>`;
+        }
+        else if (node.name == "交换机") {
+            return `<div>开发文档:<a href="https://icones.js.org/collection/ep" target="_blank">icones</a>，<a href="http://10.51.134.51:30808/docs-components/icon.html" target="_blank">图标规范</a></div>`;
+        }
+        else if (node.name == "button" || node.name == "按钮" || node.name.includes("朴素")) {
+            return `<div>开发文档:<a href="https://element-plus.org/zh-CN/component/button.html" target="_blank">Element</a>，<a href="http://10.51.134.51:30808/docs-components/button.html" target="_blank">按钮规范</a></div>`;
+        }
+        else if (node.name == "form") {
+            return `<div>开发文档:<a href="https://element-plus.org/zh-CN/component/form.html" target="_blank">Element</a>，<a href="http://10.51.134.51:30808/docs-components/form.html" target="_blank">表单规范</a></div>`;
+        }
+        else if (node.name == "table") {
+            return `<div>开发文档:<a href="https://element-plus.org/zh-CN/component/table.html" target="_blank">Element</a>，<a href="http://10.51.134.51:30808/docs-components/table.html" target="_blank">表格规范</a></div>`;
+        }
+        else if (node.name == "pagination") {
+            return `<div>开发文档:<a href="https://element-plus.org/zh-CN/component/pagination.html" target="_blank">Element</a>，<a href="http://10.51.134.51:30808/docs-components/pagination.html" target="_blank">分页规范</a></div>`;
+        }
+        else {
+            return `<div>开发文档:<a href="https://element.eleme.cn/#/zh-CN/component/button" target="_blank">Element</a>，<a href="http://10.51.134.51:30808" target="_blank">自定义</a></div>`;
+        }
     }
     return "";
 }
