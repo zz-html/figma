@@ -20,19 +20,14 @@ function checkIfComponent(node: SceneNode): string {
   }
 }
 
-// async function checkComponentMain(node: SceneNode): Promise<string> {
-//   if (node.type === "INSTANCE") {
-//     // 现在可以安全访问 mainComponent
-//     console.log("INSTANCE:"); 
-//     const mainComponent = await node.getMainComponentAsync();
-//     console.log("主组件名称:", mainComponent?.name); // 使用可选链以防万一
-//     return `<div">主组件名称:${mainComponent?.name}`;
-//   } else {
-//     console.log("选中的不是组件实例");
-//     return '';
-//   }
-
-// }
+function checkComponentDoc(node: SceneNode): string {
+  if (node.type === "INSTANCE") {
+    const instance = node as InstanceNode
+    console.log('checkIfComponent', instance.componentProperties);
+    return `<div>开发文档:<a href="https://element.eleme.cn/#/zh-CN/component/button" target="_blank">Element</a>，<a href="https://secloud0.ruijie.com.cn/" target="_blank">自定义</a></div>`;
+  } 
+  return "";
+}
 
 
 
@@ -44,9 +39,9 @@ function checkComponentChild(node: SceneNode): string {
     
     children.forEach((child, index) => {
       // result += `<div>${index + 1}. ${child.name} (类型: ${child.type})</div>`;
-      if (node.type === 'COMPONENT') {
+      if (child.type === 'COMPONENT') {
         result += `<div>${index + 1}. ${child.name} 是组件</div>`;
-      } else if (node.type === 'INSTANCE') {
+      } else if (child.type === 'INSTANCE') {
         result += `<div>${index + 1}. ${child.name} 是组件实例</div>`;
       } else {
         result += `<div style="color: red;">${index + 1}. ${child.name} 不是组件或组件实例</div>`;
@@ -91,11 +86,11 @@ figma.ui.onmessage =  async (msg: {type: string, count: number}) => {
     }
     const selectedNode = selection[0];
     const resultComponent = checkIfComponent(selectedNode);
-    console.log(selectedNode, selectedNode.name);
     const resultComponentChild = checkComponentChild(selectedNode);
+    const resultComponentDoc = checkComponentDoc(selectedNode);
     figma.ui.postMessage({
       type: 'UPDATE_JSON',
-      data: resultComponent + resultComponentChild
+      data: resultComponent + resultComponentDoc + resultComponentChild
     }); 
   } else if (msg.type === 'cancel') {
     figma.ui.postMessage({
@@ -123,10 +118,10 @@ figma.on('selectionchange',()=>{
   } 
   const selectedNode = selection[0];
   const resultComponent = checkIfComponent(selectedNode);
-  console.log(selectedNode, selectedNode.name);
   const resultComponentChild = checkComponentChild(selectedNode);
+  const resultComponentDoc = checkComponentDoc(selectedNode);
   figma.ui.postMessage({
     type: 'UPDATE_JSON',
-    data: resultComponent + resultComponentChild
+    data: resultComponent + resultComponentDoc + resultComponentChild
   }); 
 })

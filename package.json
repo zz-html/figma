@@ -1,7 +1,7 @@
 {
-  "name": "test-plugin",
+  "name": "组件检查和索引工具",
   "version": "1.0.0",
-  "description": "Your Figma Plugin",
+  "description": "组件检查和索引工具",
   "main": "code.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
