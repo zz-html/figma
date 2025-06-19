@@ -25,6 +25,14 @@ function checkIfComponent(node) {
         return `<div>${node.name} 是组件实例</div>`;
     }
     else {
+        let parent = node.parent;
+        console.log("parent", parent);
+        while (parent) {
+            if (parent.type === 'COMPONENT' || parent.type === 'INSTANCE') {
+                return `<div>${node.name} 是组件内部元素</div>`;
+            }
+            parent = parent.parent;
+        }
         return `<div style="color: red;">${node.name} 不是组件或组件实例</div>`;
     }
 }
@@ -87,12 +95,6 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         figma.currentPage.selection = nodes;
         figma.viewport.scrollAndZoomIntoView(nodes);
     }
-    else if (msg.type === 'cancel') {
-        figma.ui.postMessage({
-            type: 'OPEN_URL',
-            data: "https://element.eleme.cn/#/zh-CN/component/button"
-        });
-    }
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
     // figma.closePlugin();
@@ -118,19 +120,19 @@ figma.on('selectionchange', () => {
         const fills = selectedNode.fills;
         // 遍历所有填充（支持渐变、图片等，这里只处理纯色）
         fills.forEach((fill) => {
-            var _a;
             if (fill.type === "SOLID") {
                 const color = fill.color;
-                const opacity = (_a = fill.opacity) !== null && _a !== void 0 ? _a : 1; // 透明度（默认 1）
+                // const opacity = fill.opacity ?? 1; // 透明度（默认 1）
+                // const rgba = `(${Math.round(color.r * 255)},${Math.round(color.g * 255)},${Math.round(color.b * 255)},${opacity})`
                 // 转换为 HEX 格式
                 const hex = rgbToHex(color.r, color.g, color.b);
-                console.log("HEX:", hex);
-                console.log("RGBA:", `rgba(${Math.round(color.r * 255)}, ${Math.round(color.g * 255)}, ${Math.round(color.b * 255)}, ${opacity})`);
                 resultComponentColor += `<div>颜色${hex},<span style="color:red">非规范标准色</span></div>`;
+                resultComponentColor += `<div>颜色文档:<a href="http://10.51.134.51:30808/docs-components/css-color.html" target="_blank">自定义</a></div>`;
             }
         });
     }
     //字体
+    let resultComponentFont = "";
     if (selectedNode.type === "TEXT") {
         const textNode = selectedNode;
         // 处理混合字体大小
@@ -141,11 +143,12 @@ figma.on('selectionchange', () => {
             });
         }
         else {
-            console.log(`字体大小: ${textNode.fontSize}px (位于 ${textNode.name})`);
+            resultComponentFont += `<div>字体大小:${textNode.fontSize}px,<span style="color:red">非规范标字体</span></div>`;
+            resultComponentFont += `<div>字体文档:<a href="http://10.51.134.51:30808/docs-components/css-color.html" target="_blank">自定义</a></div>`;
         }
     }
     figma.ui.postMessage({
         type: 'UPDATE_JSON',
-        data: resultComponent + resultComponentColor + resultComponentDoc + resultComponentChild
+        data: resultComponent + resultComponentColor + resultComponentFont + resultComponentDoc + resultComponentChild
     });
 });
