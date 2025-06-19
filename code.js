@@ -29,10 +29,9 @@ function checkIfComponent(node) {
     }
 }
 function checkComponentDoc(node) {
-    if (node.type === "INSTANCE") {
-        const instance = node;
-        console.log('checkIfComponent', instance.componentProperties);
-        return `<div>开发文档:<a href="https://element.eleme.cn/#/zh-CN/component/button" target="_blank">Element</a>，<a href="https://secloud0.ruijie.com.cn/" target="_blank">自定义</a></div>`;
+    if (node.type === 'COMPONENT' || node.type === "INSTANCE") {
+        // const instance = node as InstanceNode
+        return `<div>开发文档:<a href="https://element.eleme.cn/#/zh-CN/component/button" target="_blank">Element</a>，<a href="http://10.51.134.51:30808" target="_blank">自定义</a></div>`;
     }
     return "";
 }
@@ -56,8 +55,16 @@ function checkComponentChild(node) {
         return result;
     }
     else {
-        return `${node.name} 不包含子元素`;
+        //return `${node.name} 不包含子元素`
+        return "";
     }
+}
+function rgbToHex(r, g, b) {
+    const toHex = (n) => {
+        const hex = Math.round(n * 255).toString(16);
+        return hex.length === 1 ? "0" + hex : hex; // 手动补零
+    };
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
 }
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
@@ -80,31 +87,11 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
         figma.currentPage.selection = nodes;
         figma.viewport.scrollAndZoomIntoView(nodes);
     }
-    else if (msg.type === 'check-component') {
-        const selection = figma.currentPage.selection;
-        if (selection.length == 0) {
-            console.log('请先选中一个节点');
-            figma.ui.postMessage({
-                type: 'UPDATE_JSON',
-                data: '请先选中一个节点'
-            });
-            return;
-        }
-        const selectedNode = selection[0];
-        const resultComponent = checkIfComponent(selectedNode);
-        const resultComponentChild = checkComponentChild(selectedNode);
-        const resultComponentDoc = checkComponentDoc(selectedNode);
-        figma.ui.postMessage({
-            type: 'UPDATE_JSON',
-            data: resultComponent + resultComponentDoc + resultComponentChild
-        });
-    }
     else if (msg.type === 'cancel') {
         figma.ui.postMessage({
             type: 'OPEN_URL',
             data: "https://element.eleme.cn/#/zh-CN/component/button"
         });
-        // https://element.eleme.cn/#/zh-CN/component/page-headers
     }
     // Make sure to close the plugin when you're done. Otherwise the plugin will
     // keep running, which shows the cancel button at the bottom of the screen.
@@ -121,11 +108,44 @@ figma.on('selectionchange', () => {
         return;
     }
     const selectedNode = selection[0];
+    console.log("selectedNode", selectedNode);
     const resultComponent = checkIfComponent(selectedNode);
     const resultComponentChild = checkComponentChild(selectedNode);
     const resultComponentDoc = checkComponentDoc(selectedNode);
+    // 检查是否有填充色（如矩形、文字等）
+    let resultComponentColor = "";
+    if ("fills" in selectedNode && selectedNode.fills !== figma.mixed) {
+        const fills = selectedNode.fills;
+        // 遍历所有填充（支持渐变、图片等，这里只处理纯色）
+        fills.forEach((fill) => {
+            var _a;
+            if (fill.type === "SOLID") {
+                const color = fill.color;
+                const opacity = (_a = fill.opacity) !== null && _a !== void 0 ? _a : 1; // 透明度（默认 1）
+                // 转换为 HEX 格式
+                const hex = rgbToHex(color.r, color.g, color.b);
+                console.log("HEX:", hex);
+                console.log("RGBA:", `rgba(${Math.round(color.r * 255)}, ${Math.round(color.g * 255)}, ${Math.round(color.b * 255)}, ${opacity})`);
+                resultComponentColor += `<div>颜色${hex},<span style="color:red">非规范标准色</span></div>`;
+            }
+        });
+    }
+    //字体
+    if (selectedNode.type === "TEXT") {
+        const textNode = selectedNode;
+        // 处理混合字体大小
+        if (textNode.fontSize === figma.mixed) {
+            const segments = textNode.getStyledTextSegments(["fontSize"]);
+            segments.forEach(seg => {
+                console.log(`字体大小: ${seg.fontSize}px (位于 ${textNode.name})`);
+            });
+        }
+        else {
+            console.log(`字体大小: ${textNode.fontSize}px (位于 ${textNode.name})`);
+        }
+    }
     figma.ui.postMessage({
         type: 'UPDATE_JSON',
-        data: resultComponent + resultComponentDoc + resultComponentChild
+        data: resultComponent + resultComponentColor + resultComponentDoc + resultComponentChild
     });
 });
