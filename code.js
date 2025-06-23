@@ -95,6 +95,24 @@ function rgbToHex(r, g, b) {
     };
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
 }
+function getAllVariableCollections() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const collections = yield figma.variables.getLocalVariableCollectionsAsync();
+            console.log('获取到的变量集合:', collections);
+            collections.forEach(collection => {
+                console.log('集合名称:', collection.name);
+                console.log('集合ID:', collection.id);
+                console.log('模式数量:', collection.modes.length);
+            });
+            return collections;
+        }
+        catch (error) {
+            console.error('获取变量集合失败:', error);
+            return [];
+        }
+    });
+}
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
@@ -123,11 +141,11 @@ figma.ui.onmessage = (msg) => __awaiter(void 0, void 0, void 0, function* () {
 figma.on('selectionchange', () => {
     const selection = figma.currentPage.selection;
     if (selection.length == 0) {
-        console.log('请先选中一个节点');
         figma.ui.postMessage({
             type: 'UPDATE_JSON',
             data: '请先选中一个节点'
         });
+        getAllVariableCollections();
         return;
     }
     const selectedNode = selection[0];
