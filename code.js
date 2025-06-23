@@ -15,7 +15,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // You can access browser APIs in the <script> tag inside "ui.html" which has a
 // full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
 // This shows the HTML page in "ui.html".
-figma.showUI(__html__);
+figma.showUI(__html__, {
+    width: 300, // 宽度（像素）
+    height: 260, // 高度（像素）
+    themeColors: true // 可选：使用Figma主题颜色
+});
 // 异步获取组件实例的母组件
 function getParentComponent(instance) {
     return __awaiter(this, void 0, void 0, function* () {
