@@ -26,7 +26,10 @@ onmessage = (event) => {
   if (msg.type === 'UPDATE_JSON') {
     document.getElementById('json-output').innerHTML = msg.data;
   } if (msg.type === 'APPEND_JSON') {
-    document.getElementById('json-output').appendChild = "msg.data";
+    console.log("APPEND_JSONzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+    const newElement = document.createElement('div');
+    newElement.textContent = msg.data;
+    document.getElementById('json-output').appendChild(newElement);
   } else if (msg.type === 'NOTIFY') {
     alert(msg.message);
   } else if (msg.type === 'OPEN_URL') {

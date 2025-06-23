@@ -138,7 +138,7 @@ function getAllVariableCollections() {
                     }))
                 };
             });
-            console.log('完整的变量数据结构:', result);
+            console.log('完整的变量数据结构:', JSON.stringify(result));
             return result;
         }
         catch (error) {
@@ -201,12 +201,28 @@ figma.on('selectionchange', () => {
         const fills = selectedNode.fills;
         // 遍历所有填充（支持渐变、图片等，这里只处理纯色）
         fills.forEach((fill) => {
+            var _a;
             if (fill.type === "SOLID") {
                 const color = fill.color;
                 // const opacity = fill.opacity ?? 1; // 透明度（默认 1）
                 // const rgba = `(${Math.round(color.r * 255)},${Math.round(color.g * 255)},${Math.round(color.b * 255)},${opacity})`
                 // 转换为 HEX 格式
                 const hex = rgbToHex(color.r, color.g, color.b);
+                if ((_a = fill.boundVariables) === null || _a === void 0 ? void 0 : _a.color) {
+                    const variableId = fill.boundVariables.color.id;
+                    const variableP = figma.variables.getVariableByIdAsync(variableId);
+                    if (variableP) {
+                        variableP.then(variable => {
+                            console.log("使用了颜色变量", variable === null || variable === void 0 ? void 0 : variable.name);
+                            let resultComponentVariableId = `颜色变量${variable === null || variable === void 0 ? void 0 : variable.name}`;
+                            //resultComponentVariableId += `<div>颜色${hex},<span style="color:red">非规范标准色</span></div>`; 
+                            figma.ui.postMessage({
+                                type: 'APPEND_JSON',
+                                data: resultComponentVariableId
+                            });
+                        });
+                    }
+                }
                 resultComponentColor += `<div>颜色${hex},<span style="color:red">非规范标准色</span></div>`;
                 resultComponentColor += `<div>颜色文档:<a href="http://10.51.134.51:30808/docs-components/css-color.html" target="_blank">自定义</a></div>`;
             }
