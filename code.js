@@ -31,7 +31,10 @@ function getParentComponent(instance) {
 }
 // 检查对象类型
 function checkIfComponent(node) {
-    if (node.type === 'COMPONENT') {
+    if (node.type === 'COMPONENT_SET') {
+        return `<div>${node.name} 是主组件集</div>`;
+    }
+    else if (node.type === 'COMPONENT') {
         return `<div>${node.name} 是主组件</div>`;
     }
     else if (node.type === 'INSTANCE') {
