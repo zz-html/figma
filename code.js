@@ -98,14 +98,35 @@ function rgbToHex(r, g, b) {
 function getAllVariableCollections() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // 获取所有变量集合
             const collections = yield figma.variables.getLocalVariableCollectionsAsync();
             console.log('获取到的变量集合:', collections);
-            collections.forEach(collection => {
-                console.log('集合名称:', collection.name);
-                console.log('集合ID:', collection.id);
-                console.log('模式数量:', collection.modes.length);
+            // 获取所有变量
+            const allVariables = yield figma.variables.getLocalVariablesAsync();
+            console.log('获取到的变量:', allVariables);
+            // collections.forEach(collection => {
+            //   console.log('集合名称:', collection.name);
+            //   console.log('集合ID:', collection.id);
+            //   console.log('模式数量:', collection.modes.length);
+            // });
+            // return collections;
+            const result = collections.map(collection => {
+                // 找到属于这个集合的所有变量
+                const collectionVariables = allVariables.filter(variable => variable.variableCollectionId === collection.id);
+                return {
+                    collectionId: collection.id,
+                    collectionName: collection.name,
+                    modes: collection.modes,
+                    variables: collectionVariables.map(variable => ({
+                        id: variable.id,
+                        name: variable.name,
+                        type: variable.resolvedType,
+                        valuesByMode: variable.valuesByMode
+                    }))
+                };
             });
-            return collections;
+            console.log('完整的变量数据结构:', result);
+            return result;
         }
         catch (error) {
             console.error('获取变量集合失败:', error);
