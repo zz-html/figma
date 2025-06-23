@@ -16,6 +16,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
+// 异步获取组件实例的母组件
+function getParentComponent(instance) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const mainComponent = yield instance.getMainComponentAsync();
+            return mainComponent;
+        }
+        catch (error) {
+            console.error('获取母组件失败:', error);
+            return null;
+        }
+    });
+}
 // 检查对象类型
 function checkIfComponent(node) {
     if (node.type === 'COMPONENT') {
@@ -174,6 +187,14 @@ figma.on('selectionchange', () => {
     const resultComponent = checkIfComponent(selectedNode);
     const resultComponentChild = checkComponentChild(selectedNode);
     const resultComponentDoc = checkComponentDoc(selectedNode);
+    if (selectedNode.type === 'INSTANCE') {
+        const mainComponent = getParentComponent(selectedNode);
+        if (mainComponent) {
+            mainComponent.then(node => {
+                console.log('母组件详情zzz:', node === null || node === void 0 ? void 0 : node.name);
+            });
+        }
+    }
     // 检查是否有填充色（如矩形、文字等）
     let resultComponentColor = "";
     if ("fills" in selectedNode && selectedNode.fills !== figma.mixed) {

@@ -9,6 +9,17 @@
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__);
 
+// 异步获取组件实例的母组件
+async function getParentComponent(instance: InstanceNode): Promise<ComponentNode | null> {
+  try {
+    const mainComponent = await instance.getMainComponentAsync();
+    return mainComponent;
+  } catch (error) {
+    console.error('获取母组件失败:', error);
+    return null;
+  }
+}
+
 // 检查对象类型
 function checkIfComponent(node: SceneNode): string {
   if (node.type === 'COMPONENT') {
@@ -172,6 +183,16 @@ figma.on('selectionchange',()=>{
   const resultComponent = checkIfComponent(selectedNode);
   const resultComponentChild = checkComponentChild(selectedNode);
   const resultComponentDoc = checkComponentDoc(selectedNode);
+
+  if (selectedNode.type === 'INSTANCE') {
+    const mainComponent = getParentComponent(selectedNode as InstanceNode);
+    if (mainComponent) {
+      mainComponent.then(node=>{
+        console.log('母组件详情zzz:', node?.name);
+      })
+
+    } 
+  } 
 
   // 检查是否有填充色（如矩形、文字等）
   let resultComponentColor = "";
