@@ -29,6 +29,10 @@ function checkIfComponent(node: SceneNode): string {
   if (node.type === 'COMPONENT_SET') {
     return `<div>${node.name} 是主组件集</div>`;
   } else if (node.type === 'COMPONENT') {
+    node.setPluginData('customProp', JSON.stringify({
+      type: 'specialComponent',
+      version: new Date().getTime()
+    }));
     return `<div>${node.name} 是主组件</div>`;
   } else if (node.type === 'INSTANCE') {
     return `<div>${node.name} 是组件实例</div>`;
@@ -179,7 +183,7 @@ figma.on('selectionchange',()=>{
   if (selection.length == 0) {
     figma.ui.postMessage({
       type: 'UPDATE_JSON',
-      data: '请先选中一个节点'
+      data: '请先选中一个节点.'
     }); 
     getAllVariableCollections();
     return;
@@ -194,7 +198,16 @@ figma.on('selectionchange',()=>{
     const mainComponent = getParentComponent(selectedNode as InstanceNode);
     if (mainComponent) {
       mainComponent.then(node=>{
-        console.log('母组件详情zzz:', node?.name);
+        console.log('母组件名称:', node?.name);
+        if (node) {
+          const data = node.getPluginData('customProp');
+          if (data) {
+            const parsed = JSON.parse(data);
+            console.log('母组件customProp:', parsed.type, parsed.version);
+          } else {
+            console.log("母组件无customProp");
+          }
+        }
       })
 
     } 
