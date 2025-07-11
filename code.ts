@@ -204,6 +204,10 @@ figma.on('selectionchange',()=>{
           if (data) {
             const parsed = JSON.parse(data);
             console.log('母组件customProp:', parsed.type, parsed.version);
+            figma.ui.postMessage({
+              type: 'CUSTOM_PROP',
+              data: data
+            });
           } else {
             console.log("母组件无customProp");
           }
