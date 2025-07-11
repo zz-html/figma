@@ -18,10 +18,9 @@
   </div>
 
   <div class="tab-content" id="settings">
-    当前自定义属性
-    <div id="prop-info">
-      请选择一个对象111111111111111111111111111111111
-    </div>
+    当前自定义属性：
+    <textarea id="propTextarea" rows="4" cols="30"></textarea>
+    <button id="setPropBtn">设置组件属性</button>
   </div>
 
   <div class="tab-content" id="about">
@@ -57,6 +56,13 @@
         });
       });
     });
+
+    document.getElementById('setPropBtn').onclick = () => {
+      const textarea = document.getElementById('propTextarea');
+      //alert('当前内容: ' + textarea.value);
+      parent.postMessage({ pluginMessage: { type: 'set-prop', val: textarea.value } }, '*')
+    }
+
     onmessage = (event) => {
       const msg = event.data.pluginMessage;
       // console.log("onmessage event", msg);
@@ -71,7 +77,8 @@
       } else if (msg.type === 'OPEN_URL') {
         window.open(msg.data, '_blank');
       } else if (msg.type === 'CUSTOM_PROP') {
-        document.getElementById('prop-info').innerHTML = msg.data;
+        const textarea = document.getElementById('propTextarea');
+        textarea.value = msg.data;
       }
     };
   </script>
